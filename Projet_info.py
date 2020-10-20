@@ -88,7 +88,7 @@ def convertisseur(dossier_courant, variable=[0,1,2,3,4,5,6]):
 
 id,noise,temp,humidity,lum,co2,sent_at=convertisseur(dossier_courant)
 
-### fonctions d'affichage
+## fonctions d'affichage
 import matplotlib.pyplot as plt
 import datetime
 def input_var():
@@ -118,30 +118,61 @@ def calcul_temps(debut,fin):
             L.append(i)
     return L
 
-#temp_d=[temp[i] for i in calcul_temps(debut,fin)]# exemple
+# deb=datetime.datetime.strptime(sent_at[0], '%Y-%m-%d %H:%M:%S')
+# fin=datetime.datetime.strptime(sent_at[-1], '%Y-%m-%d %H:%M:%S')
+# x=calcul_temps(fin,deb)
 
-def affichage(x,y,xlabel='x',ylabel='y',titre='titre',z=None):
+#temp_d=[temp[i] for i in calcul_temps(debut,fin)]# exemple
+# import copy
+# temptri= copy.deepcopy(temp)
+# temptri.sort()
+def affichage(x,y,xlabel='x',ylabel='y',titre='titre'):
     '''affichage de la courbe'''
     plt.clf()
-    plt.plot(x,y,'g',linewidth=2,label='lbl 1')
-    plt.plot(x,z,'--r',linewidth=3,label='lbl2')
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(titre)
+    plt.plot(y,x,'+g',linewidth=2,label='lbl 1')
+    # plt.plot(x,z,'--r',linewidth=3,label='lbl2')
+    # plt.xlabel(xlabel)
+    # plt.ylabel(ylabel)
+    # plt.title(titre)
     #plt.xlim([1,2])
-    plt.legend(loc=0)
+    # plt.legend(loc=0)
     plt.show()
 
 
-### calculs des valeurs statistiques
+##calculs des valeurs statistiques
+# ➢ min, max, écart-type, moyenne*, variance, médiane
+id,noise,temp,humidity,lum,co2,sent_at=convertisseur(dossier_courant)
+
 import statistics as st
+from math import sqrt,log,exp
+
 def outils_st(L):
     m=min(L)
     M=max(L)
     mu=st.mean(L)
     median=st.median(L)
     var=st.pvariance(L,mu)
-    return(m,M,mu,median,var)
+    print("min={},max={},moyenne={},mediane={}, variance={}, écart-type={}".format(m,M,mu,median,var,sqrt(var)))
+    return(m,M,mu,median,var,sqrt(var))
+def humidex(temp,humidity):
+    ''' renvoie la temperature de rosée selon la formule de Heinrich Gustav Magnus-Tetens
+        Domaine de validité :
+        0<T< 60 °C
+        0,01 (1 %)<humidity< 1 (100 %)
+        0<point de rosée< 50 °C'''
+    a=17.27
+    b=237.7
+    def f(t,h):
+        return (a*t/(b+t)+ log(h))
+    # print(b*f(15,0.5) / (a-f(15,0.5)))
+    humidex=[]
+    for i in range(len(temp)):
+        tempros=b*f(temp[i],humidity[i]) / (a-f(temp[i],humidity[i]))
+
+        humidex.append(temp[i]+0.5555*(6.11*exp(5417.7530*(1/273.16-1/(273.15+tempros)))-10))
+    return humidex
+
+
 ###indice de correlation
 ### mesure de similarité
 ### période horaire des bureaux
