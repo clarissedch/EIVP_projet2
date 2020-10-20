@@ -140,7 +140,8 @@ def outils_st(L):
     M=max(L)
     mu=st.mean(L)
     median=st.median(L)
-    st.pvariance(L,mu)
+    var=st.pvariance(L,mu)
+    return(m,M,mu,median,var)
 ###indice de correlation
 ### mesure de similarité
 ### période horaire des bureaux
