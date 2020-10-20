@@ -134,6 +134,11 @@ def affichage(x,y,xlabel='x',ylabel='y',titre='titre',z=None):
 
 
 ### calculs des valeurs statistiques
+import statistics as st
+min(L), max(L), 
+mu=st.mean(L)
+st.median(L)
+st.pvariance(L,mu)
 ###indice de correlation
 ### mesure de similarité
 ### période horaire des bureaux
