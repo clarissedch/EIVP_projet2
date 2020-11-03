@@ -106,6 +106,40 @@ def outils_st(L):
     print("min={},max={},moyenne={},mediane={}, variance={}, écart-type={}".format(m,M,mu,median,var,sqrt(var)))
     return(m,M,mu,median,var,sqrt(var))
 
+# def min(l):
+#     m=l[0]
+#     for e in l:
+#         if e<m:
+#             m=e
+#     return m
+#
+# def max(l):
+#     m=l[0]
+#     for e in l:
+#         if e>m:
+#             m=e
+#     return m
+# def moyenne(l):
+#     s=0
+#     for e in l:
+#         s+=e
+#     return s/len(l)
+#
+# def mediane(l):
+#     L=copy.deepcopy(l)
+#     sort(L)
+#     if len(L)%2==0:
+#         return (L[len(L)//2]+L[len(L)//2+1])/2
+#     else:
+#         return L[len(L)//2+1]
+# import math
+# def variance_ecart_type(l):
+#     m=moyenne(l)
+#     s=0
+#     for e in l:
+#        s+=e**2
+#     v=s/len(l)-m**2
+#     return v, math.sqrt(v)
 
 def humidex(theta,humidity):
     ''' renvoie l'indice humidex calculé à partir de la température de rosée selon la formule de Heinrich Gustav Magnus-Tetens
@@ -117,59 +151,33 @@ def humidex(theta,humidity):
     b=237.7
     def f(t,h):
         return (a*t/(b+t+log(h)-2))
-    humidex=[]
+    humidex_list=[]
     for i in range(len(theta)):
         theta_ros=b*f(theta[i],humidity[i]) / (a-f(theta[i],humidity[i]))
 
-        humidex.append(theta[i]+0.5555*(6.11*exp(5417.7530*(1/273.16-1/(273.15+theta_ros)))-10))
-    return humidex
-
-humidex=humidex(theta,humidity)
+        humidex_list.append(theta[i]+0.5555*(6.11*exp(5417.7530*(1/273.16-1/(273.15+theta_ros)))-10))
+    return humidex_list
 
 ## fonctions d'affichage
 import matplotlib.pyplot as plt
 
-def input_var():
-    '''demande à l'utilisateur de rentrer une date de debut et de fin (la plage des données à étudier)
-       le format des arguments est AAAA-MM-JJ HH:MM:SS /!\ sans les '' : ils sont rajoutés par input() '''
-    debut=input('Date de debut au format AAAA-MM-JJ HH:MM:SS : ')
-    while type(debut)!= datetime.datetime:
-        try :
-            debut=datetime.datetime.strptime(debut, '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            debut=input('Erreur de conversion \n\tDate de debut au format AAAA-MM-JJ HH:MM:SS ')
-        # finally:
-            # print('2',type(debut),debut)
-    fin=input('Date de fin au format AAAA-MM-JJ HH:MM:SS : ')
-    while type(fin)!= datetime.datetime:
-        try :
-            fin=datetime.datetime.strptime(fin, '%Y-%m-%d %H:%M:%S')
-        except ValueErrorError:
-            fin=input('Erreur de conversion \n\tDate de fin au format AAAA-MM-JJ HH:MM:SS ')
-    return debut,fin
+mintps=datetime.datetime(2019, 8, 11, 11, 31, 42)#=min(sent_at)
+maxtps=datetime.datetime(2020, 9, 25, 17, 47, 8) #=max(sent_at)
 
-
-
-def calcul_temps(debut=min(sent_at),fin=max(sent_at)):
+def calcul_temps(debut=mintps,fin=maxtps):
     '''renvoie la liste des indices des lignes qui correspondent à l'intervalle de temps choisi.'''
     L=[]
-    while fin<=debut:
-        print("l'intervale de temps n'est pas valide : veuillez recommencer ")
-        debut,fin=input_var()
     for i in range(len(sent_at)):
         if debut<=sent_at[i]<=fin:
             L.append(i)
     return L,[sent_at[i] for i in L]
 
-
-# indice,temps=calcul_temps()
-
-
-def affichage(tps,y,xlabel='t',ylabel='variable',titre='titre'):
-    '''affichage de la courbe'''
+def affichage(indice,tps,var,xlabel='t',ylabel='variable',titre='titre'):
+    '''affichage de la courbe y en fct de tps et des différents ID'''
+    y=[var[i] for i in indice]
     var_id=[[],[],[],[],[],[]]
     tps_id=[[],[],[],[],[],[]]
-    for i in range(len(tps)) :
+    for i in indice :
         (var_id[id[i]-1]).append(y[i])
         (tps_id[id[i]-1]).append(tps[i])
     for i in range(6):#len(temps_id)
@@ -178,33 +186,63 @@ def affichage(tps,y,xlabel='t',ylabel='variable',titre='titre'):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(titre)
-    plt.legend(loc="best")
 
-def courbe(variable=''):
-    indice,tps=calcul_temps()
+def courbe(variable,debut=mintps,fin=maxtps):
+    '''affiche la courbe temporelle se referant à la variable passée en argument : l'argument doit être une chaine de charactère parmi 'bruit','température','humidité','luminosité','CO2','humidex' '''
+    indice,tps=calcul_temps(debut,fin)
     plt.close()
     plt.clf()
     if variable=="bruit":
         [noise]=convertisseur(dossier_courant,[1])
-        y=[noise[i] for i in indice]
-        affichage(tps,y,'temps en jour','bruit en dB','bruit mesuré en fonction du temps')
+        affichage(indice,tps,noise,'temps en jour','bruit en dB','bruit mesuré en fonction du temps')
+
     elif variable=="température":
         [theta]=convertisseur(dossier_courant,[2])
-        y=[theta[i] for i in indice]
-        affichage(tps,y,'temps en jour','température en °C','évolution de la température en fonction du temps')
+        affichage(indice,tps,theta,'temps en jour','température en °C','évolution de la température en fonction du temps')
+
     elif variable=="humidité":
         [humidity]=convertisseur(dossier_courant,[3])
-        y=[humidity[i] for i in indice]
-        affichage(tps,y,'temps en jour',"degré d'humidité en %","évolution de l'humidité en fonction du temps")
+        affichage(indice,tps,humidity,'temps en jour',"degré d'humidité en %","évolution de l'humidité en fonction du temps")
+
     elif variable=="luminosité":
         [lum]=convertisseur(dossier_courant,[4])
-        y=[lum[i] for i in indice]
-        affichage(tps,y,'temps en jour',"lumière en lux","lumière en fonction du temps")
+        affichage(indice,tps,lum,'temps en jour',"lumière en lux","lumière en fonction du temps")
+
     elif variable=="CO2":
         [co2]=convertisseur(dossier_courant,[5])
-        y=[co2[i] for i in indice]
-        affichage(tps,y,'temps en jour',"CO2 en ppm","taux de CO2 en fonction du temps")
+        affichage(indice,tps,co2,'temps en jour',"CO2 en ppm","taux de CO2 en fonction du temps")
+
+    elif variable=="humidex":
+        theta,humidity=convertisseur(dossier_courant,[2,3])
+        y=humidex(theta,humidity)
+        affichage(indice,tps,y,'temps en jour',"indice humidex","humidex en fonction du temps")
+    else :
+        print("erreur : l'argument doit être une chaine de charactère parmi 'bruit','température','humidité','luminosité','CO2','humidex'")
     plt.show()
+### interface utilisateur
+
+def input_tps():
+    '''demande à l'utilisateur de rentrer une date de debut et de fin (la plage des données à étudier)
+       le format des arguments est AAAA-MM-JJ HH:MM:SS /!\ sans les '' : ils sont rajoutés par input() '''
+    debut=input('Date de debut au format AAAA-MM-JJ HH:MM:SS : ')
+    while type(debut)!= datetime.datetime:
+        try :
+            debut=datetime.datetime.strptime(debut, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            debut=input('Erreur de conversion \n\tDate de debut au format AAAA-MM-JJ HH:MM:SS ')
+    fin=input('Date de fin au format AAAA-MM-JJ HH:MM:SS : ')
+    while type(fin)!= datetime.datetime:
+        try :
+            fin=datetime.datetime.strptime(fin, '%Y-%m-%d %H:%M:%S')
+        except ValueErrorError:
+            fin=input('Erreur de conversion \n\tDate de fin au format AAAA-MM-JJ HH:MM:SS ')
+    while fin<=debut:
+        print("l'intervale de temps n'est pas valide : veuillez recommencer ")
+        debut,fin=input_tps()
+    return debut,fin
+
+def input_var()  :
+    input("choisissez une variable en entrant le numéro correspondant: \n 1 : 'bruit', \n 2 : 'température', \n 3 : 'humidité', \n 4 : 'luminosité', \n 5 : 'CO2', \n 6 : 'humidex'\n ")
 
 ###indice de correlation
 ### mesure de similarité
