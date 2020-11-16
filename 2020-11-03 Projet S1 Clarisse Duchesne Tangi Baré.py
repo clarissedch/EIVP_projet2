@@ -244,6 +244,36 @@ def input_tps():
 def input_var()  :
     input("choisissez une variable en entrant le numéro correspondant: \n 1 : 'bruit', \n 2 : 'température', \n 3 : 'humidité', \n 4 : 'luminosité', \n 5 : 'CO2', \n 6 : 'humidex'\n ")
 
+###displayStats
+
+def displayStats(var):
+    début,fin=input_tps()
+    indices,dates=calcul_temps(début,fin)
+    L = convertisseur(getcwd(),[1,2,3,4,5])
+    theta=[L[1][k] for k in indices]
+    humidity=[L[2][k] for k in indices]
+    if var == 'bruit':
+        outils_st([L[0][k] for k in indices])
+    elif var == 'température':
+        outils_st(theta)
+    elif var == 'humidité' :
+        outils_st(humidity)
+    elif var == 'luminosité':
+        outils_st([L[3][k] for k in indices])
+    elif var == 'co2':
+        outils_st([L[4][k] for k in indices])
+    elif var == 'humidex':
+        hx = humidex(theta,humidity)
+        outils_st(hx)
+    else :
+        print("Argument non valide. La variable doit figurer parmis les valeurs suivantes : 'bruit', 'température', 'humidité', 'luminosité', 'co2', 'humidex'. ")
+    
+    
 ###indice de correlation
 ### mesure de similarité
 ### période horaire des bureaux
+
+
+
+
+
