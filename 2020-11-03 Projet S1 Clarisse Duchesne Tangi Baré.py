@@ -270,6 +270,25 @@ def displayStats(var):
     
     
 ###indice de correlation
+
+def covariances(var1,var2,debut,fin):
+    indices,dates=calcul_temps(debut,fin)
+    res = 0
+    l1=[var1[j] for j in indices]
+    l2=[var2[k] for k in indices]
+    m1=st.mean(l1)
+    m2=st.mean(l2)
+    for i in indices :
+        res += var1[i]*var2[i]
+    return res-(m1*m2),math.sqrt(st.pvariance(l1,m1)),math.sqrt(st.pvariance(l2,m2))
+
+def correlation(var1,var2):
+    debut,fin=input_tps()
+    v,s1,s2=covariances(var1,var2,debut,fin)
+    return r/(s1*s2)
+
+
+
 ### mesure de similarité
 ### période horaire des bureaux
 
