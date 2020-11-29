@@ -367,7 +367,7 @@ def display_stats(var,boolborne=False):
     noise,theta,humidity,lum,co2= convertisseur(getcwd(),[2,3,4,5,6])
 
     if var == 'bruit':
-        for i in range(lenoutils_st([noise[k] for k in ind],"dB")
+        outils_st([noise[k] for k in ind],"dB")
     elif var == 'température':
         outils_st([theta[k] for k in ind],"°C")
     elif var == 'humidité' :
