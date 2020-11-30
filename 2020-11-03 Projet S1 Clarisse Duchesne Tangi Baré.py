@@ -336,6 +336,35 @@ def correlation(var1,var2):
 ### mesure de similarité
 ### période horaire des bureaux
 
+### temps d'occupation des bureaux :
+def temps_occupé():
+    dirac=[]
+    plt.close()
+    for i in indice :
+        if noise[i]>39:
+            dirac.append(1)
+        else: dirac.append(0)
+    plt.plot(sent_at,dirac,"+r")
+    plt.show()
+    intervalle=[]
+    j=11
+    while j<=25:
+        L=[]
+        for i in indice:
+            if datetime.datetime(2019, 8,j, 0, 0, 0)< sent_at[i]:
+                if datetime.datetime(2019, 8,j+1, 0, 0, 0)> sent_at[i]:
+                    if dirac[i]:
+                        L.append(sent_at[i])
+        try:
+            intervalle.append((min(L),max(L)))
+        except ValueError:
+            None
+        j+=1
+    for i in intervalle:
+        print(i[0].strftime("%m/%d/%Y, %H:%M:%S"),i[1].strftime(" %H:%M:%S"))
+        print(i[1]-i[0])
+
+
 
 
 
