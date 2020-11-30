@@ -269,7 +269,51 @@ def displayStats(var):
         print("Argument non valide. La variable doit figurer parmis les valeurs suivantes : 'bruit', 'température', 'humidité', 'luminosité', 'co2', 'humidex'. ")
     
     
+ def graphe(L):
+    '''prend une liste de variable a afficher en fonction du temps et les affiche sur un meme graphe en les centrants et en les réduisant pour s'affranchir de problème d'unité.'''
+    plt.close()
+    fig=plt.figure
+    i=0
+    for I in L:
+        mu=st.mean(I)
+        sigma=np.sqrt(st.pvariance(I,mu))
+        I=[(i-mu)/sigma for i in I]
+        plt.plot(sent_at,I,'+',label=i)
+        i+=1
+    M=np.ones((len(L),len(L)))
+    for i in range(len(M)):
+        for j in range(len(M[0])):
+            if i!=j:
+                M[i,j]=cor(L[i],L[j])
+    plt.legend()
+    plt.show()
+    return M
+    
+    
+    
 ###indice de correlation
+
+def  cor(X,Y):
+    '''renvoie le coefficient de correlation entre deux variable en utilisant la matrice de covarience numpy.'''
+    c=np.cov([X,Y])
+    return c[0,1]/(st.pvariance(X)**(1/2)*st.pvariance(Y)**(1/2))
+
+# def covariances(var1,var2,debut,fin):
+#     indices,dates=calcul_temps(debut,fin)
+#     res = []
+#     l1=[var1[j] for j in indices]
+#     l2=[var2[k] for k in indices]
+#     m1=st.mean(l1)
+#     m2=st.mean(l2)
+#     for i in indices :
+#         res.append ((var1[i]-m1)*(var2[i]-m2))
+#     return st.mean(res),sqrt(st.pvariance(l1,m1)),sqrt(st.pvariance(l2,m2))
+
+# def correlation(var1,var2,debut,fin):
+#     v,s1,s2=covariances(var1,var2,debut,fin)
+#     return v/(s1*s2)
+
+
 
 def covariances(var1,var2,debut,fin):
     indices,dates=calcul_temps(debut,fin)
